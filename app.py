@@ -11,28 +11,46 @@ client = Groq(
     api_key=st.secrets["GROQ_API_Key"]
 )
 
-question = st.text_area(
-    "Ask a question:",
-    height=150,
-)
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-if st.button("Generate Response"):
+if st.button("Reset Conversation"):
+    st.session_state.messages = []
+    st.rerun()
 
-    if question.strip():
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
+prompt = st.chat_input("Ask me anything...")
+
+if prompt:
+
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    st.session_state.messages.append(
+        {
+            "role": "user",
+            "content": prompt
+        }
+    )
+
+    with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
 
             response = client.chat.completions.create(
                 model="llama-3.1-8b-instant",
-                messages=[
-        {
-            "role": "user",
-            "content": question,
-        }
-            ],
+                messages=st.session_state.messages,
             )
 
-        st.success(response.choices[0].message.content)
+            answer = response.choices[0].message.content
 
-    else:
-        st.warning("Please enter a question.")
+            st.markdown(answer)
+
+    st.session_state.messages.append(
+        {
+            "role": "assistant",
+            "content": answer
+        }
+    )
