@@ -8,6 +8,7 @@ Features
 - Context-aware responses by sending previous messages with each request
 - Reset Conversation button
 - Chat-style user interface
+
 Technologies Used
 - Python
 - Streamlit
